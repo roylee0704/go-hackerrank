@@ -11,14 +11,26 @@ func main() {
 	//
 	// fmt.Print(x, y, l, h)
 
-	p1 := &point{4, 4}
-	p2 := &point{1, 1}
+	h1 := &hotel{4, 4}
+	l1 := landmark{1, 1}
+	l2 := landmark{2, 2}
+	fmt.Print(h1.dist([]landmark{l1, l2}))
+}
 
-	fmt.Print(p1.dist(p2))
+type hotel point
+type landmark point
 
-	// fmt.Println(dist(1, 2, 1, 1))
-	// fmt.Println(dist(1, 2, 2, 2))
+func (h *hotel) dist(landmarks []landmark) int {
 
+	var sum int
+	var p2 point
+	p1 := point(*h)
+
+	for _, l := range landmarks {
+		p2 = point(l)
+		sum += p1.dist(&p2)
+	}
+	return sum
 }
 
 type point struct {
