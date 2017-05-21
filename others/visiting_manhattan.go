@@ -1,3 +1,4 @@
+// resource: https://www.hackerrank.com/contests/booking-womenintech/challenges/visiting-manhattan
 package main
 
 import "fmt"
