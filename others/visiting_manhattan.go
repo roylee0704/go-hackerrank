@@ -1,7 +1,9 @@
 // resource: https://www.hackerrank.com/contests/booking-womenintech/challenges/visiting-manhattan
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
 
@@ -11,10 +13,38 @@ func main() {
 	//
 	// fmt.Print(x, y, l, h)
 
-	h1 := &hotel{4, 4}
+	h1 := hotel{4, 4}
+	h2 := hotel{2, 1}
+
 	l1 := landmark{1, 1}
 	l2 := landmark{2, 2}
-	fmt.Print(h1.dist([]landmark{l1, l2}))
+
+	k := manhanttan{
+		hotels:    []hotel{h1, h2},
+		landmarks: []landmark{l1, l2},
+	}
+	fmt.Println(k.bestHotel())
+}
+
+type manhanttan struct {
+	hotels    []hotel
+	landmarks []landmark
+}
+
+func (m manhanttan) bestHotel() int {
+
+	var res, dist int
+	var min = 1000000 // quick hack
+
+	for i, h := range m.hotels {
+		dist = h.dist(m.landmarks)
+
+		if dist < min {
+			min = dist
+			res = i
+		}
+	}
+	return res + 1 // 1-based index
 }
 
 type hotel point
