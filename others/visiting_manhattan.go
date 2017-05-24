@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"sync"
 )
 
 func main() {
@@ -18,17 +19,33 @@ func main() {
 		landmarks[i] = landmark{x, y}
 	}
 
-	hotels := make([]hotel, h)
-	for i := 0; i < h; i++ {
-		fmt.Fscanf(os.Stdin, "%d %d", &x, &y)
-		hotels[i] = hotel{x, y}
-	}
-
 	k := manhanttan{
-		hotels:    hotels,
 		landmarks: landmarks,
 	}
-	fmt.Println(k.bestHotel())
+
+	trips := make(chan item)
+	var wg sync.WaitGroup
+	go func() {
+		wg.Wait()
+		close(trips)
+	}()
+	for i := 0; i < h; i++ {
+		fmt.Fscanf(os.Stdin, "%d %d", &x, &y)
+		wg.Add(1)
+		go k.bestHotel(i, hotel{x, y}, trips, &wg)
+	}
+
+	minDist := 10000000
+	minHotelIndex := 0
+
+	for t := range trips {
+		if t.dist < minDist {
+			minDist = t.dist
+			minHotelIndex = t.i
+		}
+	}
+
+	fmt.Print(minHotelIndex + 1)
 }
 
 type manhanttan struct {
@@ -36,20 +53,17 @@ type manhanttan struct {
 	landmarks []landmark
 }
 
-func (m manhanttan) bestHotel() int {
+type item struct {
+	i    int
+	dist int
+}
 
-	var res, dist int
-	var min = 10000000 // quick hack
-
-	for i, h := range m.hotels {
-		dist = h.dist(m.landmarks)
-
-		if dist < min {
-			min = dist
-			res = i
-		}
-	}
-	return res + 1 // 1-based index
+// bestHotel is a gofunc
+func (m manhanttan) bestHotel(i int, h hotel, trips chan item, wg *sync.WaitGroup) {
+	var dist int
+	dist = h.dist(m.landmarks)
+	trips <- item{i, dist}
+	wg.Done()
 }
 
 type hotel point
